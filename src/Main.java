@@ -27,6 +27,8 @@ public class Main {
                 int linesAmount = 0;
                 int maxLength = 0;
                 int minLength = 1024;
+                int yandexBotCounter = 0;
+                int googlebotCounter = 0;
                 while ((line = reader.readLine()) != null) {
                     int length = line.length();
                     if (length > 1024) {
@@ -38,12 +40,44 @@ public class Main {
                         minLength = length;
                     }
                     linesAmount++;
+
+                    //Делим каждую строку на составляющие
+                    String[] parts = line.split("\"");
+
+                    //Выделяем часть, которая находится в первых скобках
+                    String part = parts[parts.length - 1];
+                    String[] firstBrackets = part.split("\\(");
+
+                    //Разделяем эту часть по точке с запятой и очищаем от пробелов
+                    String firstBracket = firstBrackets[firstBrackets.length - 1];
+                    String[] fragments = firstBracket.split("; ");
+
+                    //Берём второй фрагмент и отделям в этом фрагменте часть до слэша
+                    String fragment = fragments[0];
+                    if (fragments.length >= 2) {
+                        fragment = fragments[1];
+                    }
+                    String[] resFragments = fragment.split("/");
+
+                    //Подсчитываем количество запросов от ботов
+                    String resFragment = resFragments[0];
+                    if (resFragment.equals("YandexBot")) {
+                        yandexBotCounter++;
+                    } else if (resFragment.equals("Googlebot")) {
+                        googlebotCounter++;
+                    }
                 }
 
-                //Выводим данные о строках
-                System.out.println("Общее количество строк в файле: " + linesAmount);
-                System.out.println("Длина самой длинной строки: " + maxLength);
-                System.out.println("Длина самой короткой строки: " + minLength);
+                //Выводим данные о запросах
+                System.out.println("Общее число запросов к веб-сайту: " + linesAmount);
+                System.out.println("Количество запросов от YandexBot: " + yandexBotCounter);
+                System.out.println("Количество запросов от Googlebot: " + googlebotCounter);
+
+                //Выводим долю запросов YandexBot и Googlebot относительно общего числа сделанных запросов
+                int resYandexBot = yandexBotCounter * 100 / linesAmount;
+                System.out.println("Доля запросов от YandexBot: " + resYandexBot + "%");
+                int resGooglebot = googlebotCounter * 100 / linesAmount;
+                System.out.println("Доля запросов от Googlebot: " + resGooglebot + "%");
 
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
