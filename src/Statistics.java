@@ -1,8 +1,6 @@
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 public class Statistics {
     static int totalTraffic= 0;;
@@ -58,31 +56,11 @@ public class Statistics {
             osTotalAmount += val.doubleValue();
         }
 
-        /*ArrayList<Integer> values = new ArrayList<>(osTypeAppearance.values());
-        for (int i = 0; i < values.size(); i++) {
-            osTotalAmount += values.get(i);
-        }*/
-
-        /*for (int i = 0; i < values.size(); i++) {
-            //Double share = values.get(i) / osTotalAmount;
-            values.set(i,  values.get(i) / osTotalAmount);
-
-        }*/
-
         HashMap<String, Double> res = new HashMap<>();
-
-        /*for (Map.Entry entry: osTypeAppearance.entrySet()) {
-            res.put(entry, osTotalAmount);
-        }*/
 
         for (String str: osTypeAppearance.keySet()) {
             res.put(str, osTypeAppearance.get(str) / osTotalAmount);
         }
-
-        /*for (Double val: res.values()) {
-            double v = val / osTotalAmount;
-            res.put(res., v);
-        }*/
 
         return res;
 
