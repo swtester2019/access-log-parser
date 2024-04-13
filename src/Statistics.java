@@ -11,6 +11,10 @@ public class Statistics {
 
     static HashMap<String, Integer> osTypeAppearance = new HashMap<>();
 
+    static HashSet<String> notFoundPathList = new HashSet<>();
+
+    static HashMap<String, Integer> browserAppearance = new HashMap<>();
+
     public Statistics() {
 
     }
@@ -26,20 +30,26 @@ public class Statistics {
 
         if (logEntry.responseCode == 200) {
             pathList.add(logEntry.path);
+        } else if (logEntry.responseCode == 404) {
+            notFoundPathList.add(logEntry.path);
         }
 
         UserAgent userAgent = new UserAgent(logEntry.userAgent);
-        int count = 1;
 
+        int osTypeCount = 1;
         if (!osTypeAppearance.containsKey(userAgent.osType)) {
-            osTypeAppearance.put(userAgent.osType, count);
+            osTypeAppearance.put(userAgent.osType, osTypeCount);
         } else {
-            osTypeAppearance.put(userAgent.osType, ++count);
+            osTypeAppearance.put(userAgent.osType, ++osTypeCount);
         }
-    }
 
-    public HashSet<String> getPathList() {
-        return pathList;
+        int browserCount = 1;
+        if (!browserAppearance.containsKey(userAgent.browser)) {
+            browserAppearance.put(userAgent.browser, browserCount);
+        } else {
+            browserAppearance.put(userAgent.browser, ++browserCount);
+        }
+
     }
 
     public int getTrafficRate() {
@@ -66,9 +76,36 @@ public class Statistics {
 
     }
 
+    public HashMap<String, Double> getBrowserRate() {
+
+        Double browserTotalAmount = 0.0;
+
+        for (Integer val: browserAppearance.values()) {
+            browserTotalAmount += val.doubleValue();
+        }
+
+        HashMap<String, Double> res = new HashMap<>();
+
+        for (String str: browserAppearance.keySet()) {
+            res.put(str, browserAppearance.get(str) / browserTotalAmount);
+        }
+
+        return res;
+
+    }
+
+    public HashSet<String> getPathList() {
+        return pathList;
+    }
+
+    public HashSet<String> getNotFoundPathList() {
+        return notFoundPathList;
+    }
+
     @Override
     public String toString() {
         return "Statistics{totalTraffic = " + totalTraffic + ", " + "minTime = " + minTime + ", " + "maxTime = " +
-                maxTime + ", " + "pathList = " + pathList + ", " + "osTypeAppearance = " + osTypeAppearance + "}";
+                maxTime + ", " + "pathList = " + pathList + ", " + "osTypeAppearance = " + osTypeAppearance + ", " +
+                "notFoundPathList = " + notFoundPathList + "}";
     }
 }
