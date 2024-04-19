@@ -1,4 +1,5 @@
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -27,6 +28,19 @@ public class Statistics {
 
     //Уникальные IP-адреса реальных пользователей
     static HashSet<String> uniqueIpAddr = new HashSet<>();
+
+    //Количество посещеий за одну секунду
+    static HashMap<Integer, Integer> peakSiteVisits = new HashMap<>();
+
+    static int siteVisitsCount = 1;
+
+    //Список сайтов, со страниц которых есть ссылки на текущий сайт
+    static HashSet<String> refererList = new HashSet<>();
+
+    //Количество посещений пользователями
+    static HashMap<String, Integer> ipAddrSiteVisits = new HashMap<>();
+
+    static int ipAddrSiteVisitsCount = 1;
 
     public Statistics() {
 
@@ -73,6 +87,26 @@ public class Statistics {
 
         if (String.valueOf(logEntry.responseCode).startsWith("4") || String.valueOf(logEntry.responseCode).startsWith("5")) {
             totalErrorResponses++;
+        }
+
+        if (!peakSiteVisits.containsKey(logEntry.time.getSecond()) && !logEntry.userAgent.contains("bot")) {
+            peakSiteVisits.put(logEntry.time.getSecond(), siteVisitsCount);
+        } else if (peakSiteVisits.containsKey(logEntry.time.getSecond()) && !logEntry.userAgent.contains("bot")){
+            peakSiteVisits.put(logEntry.time.getSecond(), ++siteVisitsCount);
+        }
+
+        String[] parts1 = logEntry.referer.split("https://");
+
+        if (parts1.length >= 2) {
+            String str1 = parts1[1];
+            String[] parts2 = str1.split("/");
+            refererList.add(parts2[0]);
+        }
+
+        if (!ipAddrSiteVisits.containsKey(logEntry.ipAddr)&& !logEntry.userAgent.contains("bot")) {
+            ipAddrSiteVisits.put(logEntry.ipAddr, ipAddrSiteVisitsCount);
+        } else if (ipAddrSiteVisits.containsKey(logEntry.ipAddr)&& !logEntry.userAgent.contains("bot")) {
+            ipAddrSiteVisits.put(logEntry.ipAddr, ++ipAddrSiteVisitsCount);
         }
 
     }
@@ -134,6 +168,22 @@ public class Statistics {
     public int getAverageSiteVisitsRate() {
         return totalVisits / uniqueIpAddr.size();
     }
+
+    //Метод расчёта пиковой посещаемости сайта (в секунду)
+    public int getPeakSiteVisitsRate() {
+        return Collections.max(peakSiteVisits.values());
+    }
+
+    //Метод возвращающий список сайтов, со страниц которых есть ссылки на текущий сайт
+    public HashSet<String> getRefererList() {
+        return refererList;
+    }
+
+    //Метод расчёта максимальной посещаемости одним пользователем
+    public int getIpAddrSiteVisits() {
+        return Collections.max(ipAddrSiteVisits.values());
+    }
+
 
     public HashSet<String> getPathList() {
         return pathList;
