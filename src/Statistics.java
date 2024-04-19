@@ -3,8 +3,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class Statistics {
-    static int totalTraffic= 0;;
-    static LocalDateTime minTime= LocalDateTime.now();
+    static int totalTraffic = 0;
+    static LocalDateTime minTime = LocalDateTime.now();
     static LocalDateTime maxTime = minTime.minusYears(100);
 
     static HashSet<String> pathList = new HashSet<>();
@@ -15,11 +15,25 @@ public class Statistics {
 
     static HashMap<String, Integer> browserAppearance = new HashMap<>();
 
+    //Количество обращений к сайту через обычные браузеры
+    static int totalVisits = 0;
+
+    //Количество обращений к сайту через боты
+    static int totalBotVisits = 0;
+
+    //Количество ответов с ошибочными кодами
+    static int totalErrorResponses = 0;
+
+
+    //Уникальные IP-адреса реальных пользователей
+    static HashSet<String> uniqueIpAddr = new HashSet<>();
+
     public Statistics() {
 
     }
 
     public void addEntry(LogEntry logEntry) {
+
         totalTraffic += logEntry.responseSize;
 
         if (logEntry.time.isBefore(minTime)) {
@@ -50,8 +64,20 @@ public class Statistics {
             browserAppearance.put(userAgent.browser, ++browserCount);
         }
 
+        if (!logEntry.userAgent.contains("bot")) {
+            totalVisits++;
+            uniqueIpAddr.add(logEntry.ipAddr);
+        } else {
+            totalBotVisits++;
+        }
+
+        if (String.valueOf(logEntry.responseCode).startsWith("4") || String.valueOf(logEntry.responseCode).startsWith("5")) {
+            totalErrorResponses++;
+        }
+
     }
 
+    //Метод подсчёта среднего объёма трафика сайта за час
     public int getTrafficRate() {
         int res = 0;
         res = totalTraffic / (maxTime.getHour() - minTime.getHour());
@@ -62,13 +88,13 @@ public class Statistics {
 
         Double osTotalAmount = 0.0;
 
-        for (Integer val: osTypeAppearance.values()) {
+        for (Integer val : osTypeAppearance.values()) {
             osTotalAmount += val.doubleValue();
         }
 
         HashMap<String, Double> res = new HashMap<>();
 
-        for (String str: osTypeAppearance.keySet()) {
+        for (String str : osTypeAppearance.keySet()) {
             res.put(str, osTypeAppearance.get(str) / osTotalAmount);
         }
 
@@ -80,18 +106,33 @@ public class Statistics {
 
         Double browserTotalAmount = 0.0;
 
-        for (Integer val: browserAppearance.values()) {
+        for (Integer val : browserAppearance.values()) {
             browserTotalAmount += val.doubleValue();
         }
 
         HashMap<String, Double> res = new HashMap<>();
 
-        for (String str: browserAppearance.keySet()) {
+        for (String str : browserAppearance.keySet()) {
             res.put(str, browserAppearance.get(str) / browserTotalAmount);
         }
 
         return res;
 
+    }
+
+    //Метод подсчёта среднего количества посещений сайта за час
+    public int getSiteVisitsRate() {
+        return totalVisits / (maxTime.getHour() - minTime.getHour());
+    }
+
+    //Метод подсчёта среднего количества ошибочных запросов в час
+    public int getErrorResponsesRate() {
+        return totalErrorResponses / (maxTime.getHour() - minTime.getHour());
+    }
+
+    //Метод расчёта средней посещаемости одним пользователем
+    public int getAverageSiteVisitsRate() {
+        return totalVisits / uniqueIpAddr.size();
     }
 
     public HashSet<String> getPathList() {
@@ -100,6 +141,14 @@ public class Statistics {
 
     public HashSet<String> getNotFoundPathList() {
         return notFoundPathList;
+    }
+
+    public int getTotalVisits() {
+        return totalVisits;
+    }
+
+    public int getTotalBotVisits() {
+        return totalBotVisits;
     }
 
     @Override
