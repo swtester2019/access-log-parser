@@ -1,3 +1,4 @@
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,7 +79,7 @@ public class Statistics {
             browserAppearance.put(userAgent.browser, ++browserCount);
         }
 
-        if (!logEntry.userAgent.contains("bot")) {
+        if (!userAgent.isBot(logEntry.userAgent)) {
             totalVisits++;
             uniqueIpAddr.add(logEntry.ipAddr);
         } else {
@@ -89,9 +90,9 @@ public class Statistics {
             totalErrorResponses++;
         }
 
-        if (!peakSiteVisits.containsKey(logEntry.time.getSecond()) && !logEntry.userAgent.contains("bot")) {
+        if (!peakSiteVisits.containsKey(logEntry.time.getSecond()) && !userAgent.isBot(logEntry.userAgent)) {
             peakSiteVisits.put(logEntry.time.getSecond(), siteVisitsCount);
-        } else if (peakSiteVisits.containsKey(logEntry.time.getSecond()) && !logEntry.userAgent.contains("bot")){
+        } else if (peakSiteVisits.containsKey(logEntry.time.getSecond()) && !userAgent.isBot(logEntry.userAgent)){
             peakSiteVisits.put(logEntry.time.getSecond(), ++siteVisitsCount);
         }
 
@@ -103,9 +104,9 @@ public class Statistics {
             refererList.add(parts2[0]);
         }
 
-        if (!ipAddrSiteVisits.containsKey(logEntry.ipAddr)&& !logEntry.userAgent.contains("bot")) {
+        if (!ipAddrSiteVisits.containsKey(logEntry.ipAddr)&& !userAgent.isBot(logEntry.userAgent)) {
             ipAddrSiteVisits.put(logEntry.ipAddr, ipAddrSiteVisitsCount);
-        } else if (ipAddrSiteVisits.containsKey(logEntry.ipAddr)&& !logEntry.userAgent.contains("bot")) {
+        } else if (ipAddrSiteVisits.containsKey(logEntry.ipAddr)&& !userAgent.isBot(logEntry.userAgent)) {
             ipAddrSiteVisits.put(logEntry.ipAddr, ++ipAddrSiteVisitsCount);
         }
 
@@ -156,12 +157,12 @@ public class Statistics {
 
     //Метод подсчёта среднего количества посещений сайта за час
     public int getSiteVisitsRate() {
-        return totalVisits / (maxTime.getHour() - minTime.getHour());
+        return totalVisits / (int) (Duration.between(minTime, maxTime).toHours());
     }
 
     //Метод подсчёта среднего количества ошибочных запросов в час
     public int getErrorResponsesRate() {
-        return totalErrorResponses / (maxTime.getHour() - minTime.getHour());
+        return totalErrorResponses / (int) (Duration.between(minTime, maxTime).toHours());
     }
 
     //Метод расчёта средней посещаемости одним пользователем

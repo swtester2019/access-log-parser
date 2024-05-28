@@ -17,11 +17,11 @@ public class LogEntry {
         ipAddr = parts1[0];
 
         String str2 = parts1[1];
-        String[] parts2 =str2.split("\\[");
+        String[] parts2 = str2.split("\\[");
         String str3 = parts2[1];
-        String[] parts3 =str3.split("] \"");
+        String[] parts3 = str3.split("] \"");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);
-        time =  LocalDateTime.parse(parts3[0], formatter);
+        time = LocalDateTime.parse(parts3[0], formatter);
 
         String str4 = parts3[1];
         String[] parts4 = str4.split(" ", 2);

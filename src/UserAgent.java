@@ -31,6 +31,10 @@ public class UserAgent {
         return browser;
     }
 
+    public boolean isBot(String userAgent) {
+        return userAgent.contains("bot");
+    }
+
     @Override
     public String toString() {
         return "UserAgent{" +
